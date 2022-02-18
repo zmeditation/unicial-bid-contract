@@ -18,7 +18,7 @@ contract ERC721Bid is Ownable, Pausable, ERC721BidStorage, NativeMetaTransaction
     * @dev Constructor of the contract.
     * @param _owner - owner
     * @param _feesCollector - fees collector
-    * @param _manaToken - Address of the ERC20 accepted for this marketplace
+    * @param _uccToken - Address of the ERC20 accepted for this marketplace
     * @param _royaltiesManager - Royalties manager contract
     * @param _feesCollectorCutPerMillion - fees collector cut per million
     * @param _royaltiesCutPerMillion - royalties cut per million
@@ -26,7 +26,7 @@ contract ERC721Bid is Ownable, Pausable, ERC721BidStorage, NativeMetaTransaction
     constructor(
         address _owner,
         address _feesCollector,
-        address _manaToken,
+        address _uccToken,
         IRoyaltiesManager _royaltiesManager,
         uint256 _feesCollectorCutPerMillion,
         uint256 _royaltiesCutPerMillion
@@ -42,7 +42,7 @@ contract ERC721Bid is Ownable, Pausable, ERC721BidStorage, NativeMetaTransaction
         setFeesCollectorCutPerMillion(_feesCollectorCutPerMillion);
         setRoyaltiesCutPerMillion(_royaltiesCutPerMillion);
 
-        manaToken = ERC20Interface(_manaToken);
+        uccToken = ERC20Interface(_uccToken);
         // Set owner
         transferOwnership(_owner);
     }
@@ -279,7 +279,7 @@ contract ERC721Bid is Ownable, Pausable, ERC721BidStorage, NativeMetaTransaction
                 (royaltiesReceiver) = abi.decode(res, (address));
                 if (royaltiesReceiver != address(0)) {
                 require(
-                    manaToken.transferFrom(bidder, royaltiesReceiver, royaltiesShareAmount),
+                    uccToken.transferFrom(bidder, royaltiesReceiver, royaltiesShareAmount),
                     "ERC721Bid#onERC721Received: TRANSFER_FEES_TO_ROYALTIES_RECEIVER_FAILED"
                 );
                 }
@@ -297,15 +297,15 @@ contract ERC721Bid is Ownable, Pausable, ERC721BidStorage, NativeMetaTransaction
 
             if (totalFeeCollectorShareAmount > 0) {
                 require(
-                    manaToken.transferFrom(bidder, feesCollector, totalFeeCollectorShareAmount),
+                    uccToken.transferFrom(bidder, feesCollector, totalFeeCollectorShareAmount),
                     "ERC721Bid#onERC721Received: TRANSFER_FEES_TO_FEES_COLLECTOR_FAILED"
                 );
             }
         }
 
-        // Transfer MANA from bidder to seller
+        // Transfer UCC from bidder to seller
         require(
-            manaToken.transferFrom(bidder, _from, price - royaltiesShareAmount - feesCollectorShareAmount),
+            uccToken.transferFrom(bidder, _from, price - royaltiesShareAmount - feesCollectorShareAmount),
             "ERC721Bid#onERC721Received:: TRANSFER_AMOUNT_TO_TOKEN_OWNER_FAILED"
         );
 
@@ -650,17 +650,17 @@ contract ERC721Bid is Ownable, Pausable, ERC721BidStorage, NativeMetaTransaction
 
     /**
     * @dev Check if the bidder has balance and the contract has enough allowance
-    * to use bidder MANA on his belhalf
+    * to use bidder UCC on his belhalf
     * @param _bidder - address of bidder
     * @param _amount - uint256 of amount
     */
     function _requireBidderBalance(address _bidder, uint256 _amount) internal view {
         require(
-            manaToken.balanceOf(_bidder) >= _amount,
+            uccToken.balanceOf(_bidder) >= _amount,
             "ERC721Bid#_requireBidderBalance: INSUFFICIENT_FUNDS"
         );
         require(
-            manaToken.allowance(_bidder, address(this)) >= _amount,
+            uccToken.allowance(_bidder, address(this)) >= _amount,
             "ERC721Bid#_requireBidderBalance: CONTRACT_NOT_AUTHORIZED"
         );
     }

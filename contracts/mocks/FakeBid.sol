@@ -10,14 +10,14 @@ contract FakeBid is ERC721Bid {
     constructor(
         address _owner,
         address _feesCollector,
-        address _manaToken,
+        address _uccToken,
         IRoyaltiesManager _royaltiesManager,
         uint256 _feesCollectorCutPerMillion,
         uint256 _royaltiesCutPerMillion
     ) ERC721Bid(
         _owner,
         _feesCollector,
-        _manaToken,
+        _uccToken,
         _royaltiesManager,
         _feesCollectorCutPerMillion,
         _royaltiesCutPerMillion

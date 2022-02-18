@@ -86,7 +86,7 @@ contract('Bid', function([
 ]) {
   let bidContract
   let royaltiesManager
-  let mana
+  let ucc
   let token
   let composableToken
   let tokenWithoutInterface
@@ -169,7 +169,7 @@ contract('Bid', function([
 
   beforeEach(async function() {
     // Create tokens
-    mana = await erc20.new(creationParams)
+    ucc = await erc20.new(creationParams)
     token = await Token.new(creationParams)
     composableToken = await ComposableToken.new(creationParams)
     tokenWithoutInterface = await TokenWithoutInterface.new(creationParams)
@@ -180,16 +180,16 @@ contract('Bid', function([
     bidContract = await BidContract.new(
       owner,
       feesCollector,
-      mana.address,
+      ucc.address,
       royaltiesManager.address,
       0,
       0,
       creationParams
     )
 
-    await mana.mint(initialBalance, bidder)
-    await mana.mint(initialBalance, anotherBidder)
-    await mana.mint(initialBalance, oneMoreBidder)
+    await ucc.mint(initialBalance, bidder)
+    await ucc.mint(initialBalance, anotherBidder)
+    await ucc.mint(initialBalance, oneMoreBidder)
 
     await token.mint(holder, tokenOne)
     await token.mint(holder, tokenTwo)
@@ -204,9 +204,9 @@ contract('Bid', function([
     await erc721TestCollection.mint(holder, tokenThree)
     await erc721TestCollection.mint(holder, tokenFour)
 
-    await mana.approve(bidContract.address, initialBalance, fromBidder)
-    await mana.approve(bidContract.address, initialBalance, fromAnotherBidder)
-    await mana.approve(bidContract.address, initialBalance, fromOneMoreBidder)
+    await ucc.approve(bidContract.address, initialBalance, fromBidder)
+    await ucc.approve(bidContract.address, initialBalance, fromAnotherBidder)
+    await ucc.approve(bidContract.address, initialBalance, fromOneMoreBidder)
   })
 
   describe('Place bids', function() {
@@ -481,7 +481,7 @@ contract('Bid', function([
     })
 
     it('reverts when bidder did not authorize bid contract on his behalf', async function() {
-      await mana.approve(bidContract.address, 0, fromBidder)
+      await ucc.approve(bidContract.address, 0, fromBidder)
       await assertRevert(
         bidContract.placeBid(
           token.address,
@@ -733,10 +733,10 @@ contract('Bid', function([
     })
 
     it('should accept a bid for an ERC721', async function() {
-      let holderBalance = await mana.balanceOf(holder)
+      let holderBalance = await ucc.balanceOf(holder)
       expect(holderBalance).to.be.eq.BN(0)
 
-      let bidderBalance = await mana.balanceOf(bidder)
+      let bidderBalance = await ucc.balanceOf(bidder)
       expect(bidderBalance).to.be.eq.BN(initialBalance)
 
       let ownerOfTokenOne = await token.ownerOf(tokenOne)
@@ -771,10 +771,10 @@ contract('Bid', function([
         }
       )
 
-      holderBalance = await mana.balanceOf(holder)
+      holderBalance = await ucc.balanceOf(holder)
       expect(holderBalance).to.be.eq.BN(price)
 
-      bidderBalance = await mana.balanceOf(bidder)
+      bidderBalance = await ucc.balanceOf(bidder)
       expect(bidderBalance).to.be.eq.BN(initialBalance.sub(price))
 
       ownerOfTokenOne = await token.ownerOf(tokenOne)
@@ -782,10 +782,10 @@ contract('Bid', function([
     })
 
     it('should accept a bid for an ERC721 :: Relayed EIP721', async function() {
-      let holderBalance = await mana.balanceOf(holder)
+      let holderBalance = await ucc.balanceOf(holder)
       expect(holderBalance).to.be.eq.BN(0)
 
-      let bidderBalance = await mana.balanceOf(bidder)
+      let bidderBalance = await ucc.balanceOf(bidder)
       expect(bidderBalance).to.be.eq.BN(initialBalance)
 
       let ownerOfTokenOne = await token.ownerOf(tokenOne)
@@ -854,10 +854,10 @@ contract('Bid', function([
         }
       )
 
-      holderBalance = await mana.balanceOf(holder)
+      holderBalance = await ucc.balanceOf(holder)
       expect(holderBalance).to.be.eq.BN(price)
 
-      bidderBalance = await mana.balanceOf(bidder)
+      bidderBalance = await ucc.balanceOf(bidder)
       expect(bidderBalance).to.be.eq.BN(initialBalance.sub(price))
 
       ownerOfTokenOne = await token.ownerOf(tokenOne)
@@ -865,10 +865,10 @@ contract('Bid', function([
     })
 
     it('should accept a bid for a composable ERC721', async function() {
-      let holderBalance = await mana.balanceOf(holder)
+      let holderBalance = await ucc.balanceOf(holder)
       expect(holderBalance).to.be.eq.BN(0)
 
-      let bidderBalance = await mana.balanceOf(bidder)
+      let bidderBalance = await ucc.balanceOf(bidder)
       expect(bidderBalance).to.be.eq.BN(initialBalance)
 
       let ownerOfTokenOne = await composableToken.ownerOf(tokenOne)
@@ -902,10 +902,10 @@ contract('Bid', function([
         }
       )
 
-      holderBalance = await mana.balanceOf(holder)
+      holderBalance = await ucc.balanceOf(holder)
       expect(holderBalance).to.be.eq.BN(price)
 
-      bidderBalance = await mana.balanceOf(bidder)
+      bidderBalance = await ucc.balanceOf(bidder)
       expect(bidderBalance).to.be.eq.BN(initialBalance.sub(price))
 
       ownerOfTokenOne = await composableToken.ownerOf(tokenOne)
@@ -1091,7 +1091,7 @@ contract('Bid', function([
         await bidContract.getBidByToken(token.address, tokenOne, 0)
       )[0]
 
-      await mana.transfer(holder, initialBalance, fromBidder)
+      await ucc.transfer(holder, initialBalance, fromBidder)
 
       await assertRevert(
         token.safeTransferFromWithBytes(
@@ -1109,7 +1109,7 @@ contract('Bid', function([
         await bidContract.getBidByToken(token.address, tokenOne, 0)
       )[0]
 
-      await mana.approve(bidContract.address, 0, fromBidder)
+      await ucc.approve(bidContract.address, 0, fromBidder)
 
       await assertRevert(
         token.safeTransferFromWithBytes(
@@ -1438,19 +1438,19 @@ contract('Bid', function([
     })
 
     it('should share sale :: set fees collector :: send cut to feesCollector', async function() {
-      let bidderBalance = await mana.balanceOf(bidder)
+      let bidderBalance = await ucc.balanceOf(bidder)
       expect(bidderBalance).to.be.eq.BN(initialBalance)
 
-      let holderBalance = await mana.balanceOf(holder)
+      let holderBalance = await ucc.balanceOf(holder)
       expect(holderBalance).to.be.eq.BN(0)
 
-      let feesCollectorBalance = await mana.balanceOf(feesCollector)
+      let feesCollectorBalance = await ucc.balanceOf(feesCollector)
       expect(feesCollectorBalance).to.be.eq.BN(0)
 
-      let itemCreatorBalance = await mana.balanceOf(itemCreator)
+      let itemCreatorBalance = await ucc.balanceOf(itemCreator)
       expect(itemCreatorBalance).to.be.eq.BN(0)
 
-      let itemBeneficiaryBalance = await mana.balanceOf(itemBeneficiary)
+      let itemBeneficiaryBalance = await ucc.balanceOf(itemBeneficiary)
       expect(itemBeneficiaryBalance).to.be.eq.BN(0)
 
       // Set 10% of bid price
@@ -1499,26 +1499,26 @@ contract('Bid', function([
         }
       )
 
-      bidderBalance = await mana.balanceOf(bidder)
+      bidderBalance = await ucc.balanceOf(bidder)
 
       scientificToDecimal(bidderBalance.toString()).should.be.equal(
         scientificToDecimal(initialBalance.toString() - bidPrice)
       )
 
-      holderBalance = await mana.balanceOf(holder)
+      holderBalance = await ucc.balanceOf(holder)
       expect(holderBalance.toString()).to.be.equal(
         (bidPrice - bidPrice * 0.1).toString()
       )
 
-      feesCollectorBalance = await mana.balanceOf(feesCollector)
+      feesCollectorBalance = await ucc.balanceOf(feesCollector)
       expect(feesCollectorBalance.toString()).to.be.equal(
         (bidPrice * 0.1).toString()
       )
 
-      itemCreatorBalance = await mana.balanceOf(itemCreator)
+      itemCreatorBalance = await ucc.balanceOf(itemCreator)
       expect(itemCreatorBalance).to.be.eq.BN(0)
 
-      itemBeneficiaryBalance = await mana.balanceOf(itemBeneficiary)
+      itemBeneficiaryBalance = await ucc.balanceOf(itemBeneficiary)
       expect(itemBeneficiaryBalance).to.be.eq.BN(0)
     })
 
@@ -1526,19 +1526,19 @@ contract('Bid', function([
       await erc721TestCollection.setCreator(zeroAddress)
       await erc721TestCollection.setBeneficiary(zeroAddress)
 
-      let bidderBalance = await mana.balanceOf(bidder)
+      let bidderBalance = await ucc.balanceOf(bidder)
       expect(bidderBalance).to.be.eq.BN(initialBalance)
 
-      let holderBalance = await mana.balanceOf(holder)
+      let holderBalance = await ucc.balanceOf(holder)
       expect(holderBalance).to.be.eq.BN(0)
 
-      let feesCollectorBalance = await mana.balanceOf(feesCollector)
+      let feesCollectorBalance = await ucc.balanceOf(feesCollector)
       expect(feesCollectorBalance).to.be.eq.BN(0)
 
-      let itemCreatorBalance = await mana.balanceOf(itemCreator)
+      let itemCreatorBalance = await ucc.balanceOf(itemCreator)
       expect(itemCreatorBalance).to.be.eq.BN(0)
 
-      let itemBeneficiaryBalance = await mana.balanceOf(itemBeneficiary)
+      let itemBeneficiaryBalance = await ucc.balanceOf(itemBeneficiary)
       expect(itemBeneficiaryBalance).to.be.eq.BN(0)
 
       // Set 20% of bid price
@@ -1587,43 +1587,43 @@ contract('Bid', function([
         }
       )
 
-      bidderBalance = await mana.balanceOf(bidder)
+      bidderBalance = await ucc.balanceOf(bidder)
 
       scientificToDecimal(bidderBalance.toString()).should.be.equal(
         scientificToDecimal(initialBalance.toString() - bidPrice)
       )
 
-      holderBalance = await mana.balanceOf(holder)
+      holderBalance = await ucc.balanceOf(holder)
       expect(holderBalance.toString()).to.be.equal(
         (bidPrice - bidPrice * 0.2).toString()
       )
 
-      feesCollectorBalance = await mana.balanceOf(feesCollector)
+      feesCollectorBalance = await ucc.balanceOf(feesCollector)
       expect(feesCollectorBalance.toString()).to.be.equal(
         (bidPrice * 0.2).toString()
       )
 
-      itemCreatorBalance = await mana.balanceOf(itemCreator)
+      itemCreatorBalance = await ucc.balanceOf(itemCreator)
       expect(itemCreatorBalance).to.be.eq.BN(0)
 
-      itemBeneficiaryBalance = await mana.balanceOf(itemBeneficiary)
+      itemBeneficiaryBalance = await ucc.balanceOf(itemBeneficiary)
       expect(itemBeneficiaryBalance.toString()).to.be.eq.BN((0).toString())
     })
 
     it('should share sale :: set fees collector & royalties :: receiver 0 address by revert (check mocks/RoyaltiesManager) :: send cut to feesCollector', async function() {
-      let bidderBalance = await mana.balanceOf(bidder)
+      let bidderBalance = await ucc.balanceOf(bidder)
       expect(bidderBalance).to.be.eq.BN(initialBalance)
 
-      let holderBalance = await mana.balanceOf(holder)
+      let holderBalance = await ucc.balanceOf(holder)
       expect(holderBalance).to.be.eq.BN(0)
 
-      let feesCollectorBalance = await mana.balanceOf(feesCollector)
+      let feesCollectorBalance = await ucc.balanceOf(feesCollector)
       expect(feesCollectorBalance).to.be.eq.BN(0)
 
-      let itemCreatorBalance = await mana.balanceOf(itemCreator)
+      let itemCreatorBalance = await ucc.balanceOf(itemCreator)
       expect(itemCreatorBalance).to.be.eq.BN(0)
 
-      let itemBeneficiaryBalance = await mana.balanceOf(itemBeneficiary)
+      let itemBeneficiaryBalance = await ucc.balanceOf(itemBeneficiary)
       expect(itemBeneficiaryBalance).to.be.eq.BN(0)
 
       // Set 20% of bid price
@@ -1668,47 +1668,47 @@ contract('Bid', function([
         }
       )
 
-      bidderBalance = await mana.balanceOf(bidder)
+      bidderBalance = await ucc.balanceOf(bidder)
 
       scientificToDecimal(bidderBalance.toString()).should.be.equal(
         scientificToDecimal(initialBalance.toString() - bidPrice)
       )
 
-      holderBalance = await mana.balanceOf(holder)
+      holderBalance = await ucc.balanceOf(holder)
       expect(holderBalance.toString()).to.be.equal(
         (bidPrice - bidPrice * 0.2).toString()
       )
 
-      feesCollectorBalance = await mana.balanceOf(feesCollector)
+      feesCollectorBalance = await ucc.balanceOf(feesCollector)
       expect(feesCollectorBalance.toString()).to.be.equal(
         (bidPrice * 0.2).toString()
       )
 
-      itemCreatorBalance = await mana.balanceOf(itemCreator)
+      itemCreatorBalance = await ucc.balanceOf(itemCreator)
       expect(itemCreatorBalance).to.be.eq.BN(0)
 
-      itemBeneficiaryBalance = await mana.balanceOf(itemBeneficiary)
+      itemBeneficiaryBalance = await ucc.balanceOf(itemBeneficiary)
       expect(itemBeneficiaryBalance.toString()).to.be.eq.BN((0).toString())
     })
 
     it('should share sale :: set fees collector & royalties :: receiver 0 address by revert (not a valid royaltiesManager) :: send cut to feesCollector', async function() {
-      let bidderBalance = await mana.balanceOf(bidder)
+      let bidderBalance = await ucc.balanceOf(bidder)
       expect(bidderBalance).to.be.eq.BN(initialBalance)
 
-      let holderBalance = await mana.balanceOf(holder)
+      let holderBalance = await ucc.balanceOf(holder)
       expect(holderBalance).to.be.eq.BN(0)
 
-      let feesCollectorBalance = await mana.balanceOf(feesCollector)
+      let feesCollectorBalance = await ucc.balanceOf(feesCollector)
       expect(feesCollectorBalance).to.be.eq.BN(0)
 
-      let itemCreatorBalance = await mana.balanceOf(itemCreator)
+      let itemCreatorBalance = await ucc.balanceOf(itemCreator)
       expect(itemCreatorBalance).to.be.eq.BN(0)
 
-      let itemBeneficiaryBalance = await mana.balanceOf(itemBeneficiary)
+      let itemBeneficiaryBalance = await ucc.balanceOf(itemBeneficiary)
       expect(itemBeneficiaryBalance).to.be.eq.BN(0)
 
       // Invalid Royalties Manager
-      await bidContract.setRoyaltiesManager(mana.address, fromOwner)
+      await bidContract.setRoyaltiesManager(ucc.address, fromOwner)
       // Set 20% of bid price
       await bidContract.setFeesCollectorCutPerMillion(100000, fromOwner)
       await bidContract.setRoyaltiesCutPerMillion(100000, fromOwner)
@@ -1755,26 +1755,26 @@ contract('Bid', function([
         }
       )
 
-      bidderBalance = await mana.balanceOf(bidder)
+      bidderBalance = await ucc.balanceOf(bidder)
 
       scientificToDecimal(bidderBalance.toString()).should.be.equal(
         scientificToDecimal(initialBalance.toString() - bidPrice)
       )
 
-      holderBalance = await mana.balanceOf(holder)
+      holderBalance = await ucc.balanceOf(holder)
       expect(holderBalance.toString()).to.be.equal(
         (bidPrice - bidPrice * 0.2).toString()
       )
 
-      feesCollectorBalance = await mana.balanceOf(feesCollector)
+      feesCollectorBalance = await ucc.balanceOf(feesCollector)
       expect(feesCollectorBalance.toString()).to.be.equal(
         (bidPrice * 0.2).toString()
       )
 
-      itemCreatorBalance = await mana.balanceOf(itemCreator)
+      itemCreatorBalance = await ucc.balanceOf(itemCreator)
       expect(itemCreatorBalance).to.be.eq.BN(0)
 
-      itemBeneficiaryBalance = await mana.balanceOf(itemBeneficiary)
+      itemBeneficiaryBalance = await ucc.balanceOf(itemBeneficiary)
       expect(itemBeneficiaryBalance.toString()).to.be.eq.BN((0).toString())
     })
 
@@ -1782,19 +1782,19 @@ contract('Bid', function([
       await erc721TestCollection.setCreator(zeroAddress)
       await erc721TestCollection.setBeneficiary(zeroAddress)
 
-      let bidderBalance = await mana.balanceOf(bidder)
+      let bidderBalance = await ucc.balanceOf(bidder)
       expect(bidderBalance).to.be.eq.BN(initialBalance)
 
-      let holderBalance = await mana.balanceOf(holder)
+      let holderBalance = await ucc.balanceOf(holder)
       expect(holderBalance).to.be.eq.BN(0)
 
-      let feesCollectorBalance = await mana.balanceOf(feesCollector)
+      let feesCollectorBalance = await ucc.balanceOf(feesCollector)
       expect(feesCollectorBalance).to.be.eq.BN(0)
 
-      let itemCreatorBalance = await mana.balanceOf(itemCreator)
+      let itemCreatorBalance = await ucc.balanceOf(itemCreator)
       expect(itemCreatorBalance).to.be.eq.BN(0)
 
-      let itemBeneficiaryBalance = await mana.balanceOf(itemBeneficiary)
+      let itemBeneficiaryBalance = await ucc.balanceOf(itemBeneficiary)
       expect(itemBeneficiaryBalance).to.be.eq.BN(0)
 
       // Set 10% of bid price
@@ -1842,47 +1842,47 @@ contract('Bid', function([
         }
       )
 
-      bidderBalance = await mana.balanceOf(bidder)
+      bidderBalance = await ucc.balanceOf(bidder)
 
       scientificToDecimal(bidderBalance.toString()).should.be.equal(
         scientificToDecimal(initialBalance.toString() - bidPrice)
       )
 
-      holderBalance = await mana.balanceOf(holder)
+      holderBalance = await ucc.balanceOf(holder)
       expect(holderBalance.toString()).to.be.equal(
         (bidPrice - bidPrice * 0.1).toString()
       )
 
-      feesCollectorBalance = await mana.balanceOf(feesCollector)
+      feesCollectorBalance = await ucc.balanceOf(feesCollector)
       expect(feesCollectorBalance.toString()).to.be.equal(
         (bidPrice * 0.1).toString()
       )
 
-      itemCreatorBalance = await mana.balanceOf(itemCreator)
+      itemCreatorBalance = await ucc.balanceOf(itemCreator)
       expect(itemCreatorBalance.toString()).to.be.eq.BN(
         (bidPrice * 0.0).toString()
       )
 
-      itemBeneficiaryBalance = await mana.balanceOf(itemBeneficiary)
+      itemBeneficiaryBalance = await ucc.balanceOf(itemBeneficiary)
       expect(itemBeneficiaryBalance.toString()).to.be.eq.BN(
         (bidPrice * 0.0).toString()
       )
     })
 
     it('should share sale :: set royalties :: receiver 0 address by revert (check mocks/RoyaltiesManager) :: send cut to feesCollector', async function() {
-      let bidderBalance = await mana.balanceOf(bidder)
+      let bidderBalance = await ucc.balanceOf(bidder)
       expect(bidderBalance).to.be.eq.BN(initialBalance)
 
-      let holderBalance = await mana.balanceOf(holder)
+      let holderBalance = await ucc.balanceOf(holder)
       expect(holderBalance).to.be.eq.BN(0)
 
-      let feesCollectorBalance = await mana.balanceOf(feesCollector)
+      let feesCollectorBalance = await ucc.balanceOf(feesCollector)
       expect(feesCollectorBalance).to.be.eq.BN(0)
 
-      let itemCreatorBalance = await mana.balanceOf(itemCreator)
+      let itemCreatorBalance = await ucc.balanceOf(itemCreator)
       expect(itemCreatorBalance).to.be.eq.BN(0)
 
-      let itemBeneficiaryBalance = await mana.balanceOf(itemBeneficiary)
+      let itemBeneficiaryBalance = await ucc.balanceOf(itemBeneficiary)
       expect(itemBeneficiaryBalance).to.be.eq.BN(0)
 
       // Set 10% of bid price
@@ -1926,51 +1926,51 @@ contract('Bid', function([
         }
       )
 
-      bidderBalance = await mana.balanceOf(bidder)
+      bidderBalance = await ucc.balanceOf(bidder)
 
       scientificToDecimal(bidderBalance.toString()).should.be.equal(
         scientificToDecimal(initialBalance.toString() - bidPrice)
       )
 
-      holderBalance = await mana.balanceOf(holder)
+      holderBalance = await ucc.balanceOf(holder)
       expect(holderBalance.toString()).to.be.equal(
         (bidPrice - bidPrice * 0.1).toString()
       )
 
-      feesCollectorBalance = await mana.balanceOf(feesCollector)
+      feesCollectorBalance = await ucc.balanceOf(feesCollector)
       expect(feesCollectorBalance.toString()).to.be.equal(
         (bidPrice * 0.1).toString()
       )
 
-      itemCreatorBalance = await mana.balanceOf(itemCreator)
+      itemCreatorBalance = await ucc.balanceOf(itemCreator)
       expect(itemCreatorBalance.toString()).to.be.eq.BN(
         (bidPrice * 0.0).toString()
       )
 
-      itemBeneficiaryBalance = await mana.balanceOf(itemBeneficiary)
+      itemBeneficiaryBalance = await ucc.balanceOf(itemBeneficiary)
       expect(itemBeneficiaryBalance.toString()).to.be.eq.BN(
         (bidPrice * 0.0).toString()
       )
     })
 
     it('should share sale :: set royalties :: receiver 0 address by revert (not a valid royaltiesManager) :: send cut to feesCollector', async function() {
-      let bidderBalance = await mana.balanceOf(bidder)
+      let bidderBalance = await ucc.balanceOf(bidder)
       expect(bidderBalance).to.be.eq.BN(initialBalance)
 
-      let holderBalance = await mana.balanceOf(holder)
+      let holderBalance = await ucc.balanceOf(holder)
       expect(holderBalance).to.be.eq.BN(0)
 
-      let feesCollectorBalance = await mana.balanceOf(feesCollector)
+      let feesCollectorBalance = await ucc.balanceOf(feesCollector)
       expect(feesCollectorBalance).to.be.eq.BN(0)
 
-      let itemCreatorBalance = await mana.balanceOf(itemCreator)
+      let itemCreatorBalance = await ucc.balanceOf(itemCreator)
       expect(itemCreatorBalance).to.be.eq.BN(0)
 
-      let itemBeneficiaryBalance = await mana.balanceOf(itemBeneficiary)
+      let itemBeneficiaryBalance = await ucc.balanceOf(itemBeneficiary)
       expect(itemBeneficiaryBalance).to.be.eq.BN(0)
 
       // Invalid Royalties Manager
-      await bidContract.setRoyaltiesManager(mana.address, fromOwner)
+      await bidContract.setRoyaltiesManager(ucc.address, fromOwner)
       // Set 10% of bid price
       await bidContract.setRoyaltiesCutPerMillion(100000, fromOwner)
 
@@ -2016,28 +2016,28 @@ contract('Bid', function([
         }
       )
 
-      bidderBalance = await mana.balanceOf(bidder)
+      bidderBalance = await ucc.balanceOf(bidder)
 
       scientificToDecimal(bidderBalance.toString()).should.be.equal(
         scientificToDecimal(initialBalance.toString() - bidPrice)
       )
 
-      holderBalance = await mana.balanceOf(holder)
+      holderBalance = await ucc.balanceOf(holder)
       expect(holderBalance.toString()).to.be.equal(
         (bidPrice - bidPrice * 0.1).toString()
       )
 
-      feesCollectorBalance = await mana.balanceOf(feesCollector)
+      feesCollectorBalance = await ucc.balanceOf(feesCollector)
       expect(feesCollectorBalance.toString()).to.be.equal(
         (bidPrice * 0.1).toString()
       )
 
-      itemCreatorBalance = await mana.balanceOf(itemCreator)
+      itemCreatorBalance = await ucc.balanceOf(itemCreator)
       expect(itemCreatorBalance.toString()).to.be.eq.BN(
         (bidPrice * 0.0).toString()
       )
 
-      itemBeneficiaryBalance = await mana.balanceOf(itemBeneficiary)
+      itemBeneficiaryBalance = await ucc.balanceOf(itemBeneficiary)
       expect(itemBeneficiaryBalance.toString()).to.be.eq.BN(
         (bidPrice * 0.0).toString()
       )
@@ -2047,19 +2047,19 @@ contract('Bid', function([
       await erc721TestCollection.setCreator(itemCreator)
       await erc721TestCollection.setBeneficiary(zeroAddress)
 
-      let bidderBalance = await mana.balanceOf(bidder)
+      let bidderBalance = await ucc.balanceOf(bidder)
       expect(bidderBalance).to.be.eq.BN(initialBalance)
 
-      let holderBalance = await mana.balanceOf(holder)
+      let holderBalance = await ucc.balanceOf(holder)
       expect(holderBalance).to.be.eq.BN(0)
 
-      let feesCollectorBalance = await mana.balanceOf(feesCollector)
+      let feesCollectorBalance = await ucc.balanceOf(feesCollector)
       expect(feesCollectorBalance).to.be.eq.BN(0)
 
-      let itemCreatorBalance = await mana.balanceOf(itemCreator)
+      let itemCreatorBalance = await ucc.balanceOf(itemCreator)
       expect(itemCreatorBalance).to.be.eq.BN(0)
 
-      let itemBeneficiaryBalance = await mana.balanceOf(itemBeneficiary)
+      let itemBeneficiaryBalance = await ucc.balanceOf(itemBeneficiary)
       expect(itemBeneficiaryBalance).to.be.eq.BN(0)
 
       // Set 10% of bid price
@@ -2107,28 +2107,28 @@ contract('Bid', function([
         }
       )
 
-      bidderBalance = await mana.balanceOf(bidder)
+      bidderBalance = await ucc.balanceOf(bidder)
 
       scientificToDecimal(bidderBalance.toString()).should.be.equal(
         scientificToDecimal(initialBalance.toString() - bidPrice)
       )
 
-      holderBalance = await mana.balanceOf(holder)
+      holderBalance = await ucc.balanceOf(holder)
       expect(holderBalance.toString()).to.be.equal(
         (bidPrice - bidPrice * 0.1).toString()
       )
 
-      feesCollectorBalance = await mana.balanceOf(feesCollector)
+      feesCollectorBalance = await ucc.balanceOf(feesCollector)
       expect(feesCollectorBalance.toString()).to.be.equal(
         (bidPrice * 0).toString()
       )
 
-      itemCreatorBalance = await mana.balanceOf(itemCreator)
+      itemCreatorBalance = await ucc.balanceOf(itemCreator)
       expect(itemCreatorBalance.toString()).to.be.eq.BN(
         (bidPrice * 0.1).toString()
       )
 
-      itemBeneficiaryBalance = await mana.balanceOf(itemBeneficiary)
+      itemBeneficiaryBalance = await ucc.balanceOf(itemBeneficiary)
       expect(itemBeneficiaryBalance.toString()).to.be.eq.BN((0).toString())
     })
 
@@ -2136,19 +2136,19 @@ contract('Bid', function([
       await erc721TestCollection.setCreator(itemCreator)
       await erc721TestCollection.setBeneficiary(itemBeneficiary)
 
-      let bidderBalance = await mana.balanceOf(bidder)
+      let bidderBalance = await ucc.balanceOf(bidder)
       expect(bidderBalance).to.be.eq.BN(initialBalance)
 
-      let holderBalance = await mana.balanceOf(holder)
+      let holderBalance = await ucc.balanceOf(holder)
       expect(holderBalance).to.be.eq.BN(0)
 
-      let feesCollectorBalance = await mana.balanceOf(feesCollector)
+      let feesCollectorBalance = await ucc.balanceOf(feesCollector)
       expect(feesCollectorBalance).to.be.eq.BN(0)
 
-      let itemCreatorBalance = await mana.balanceOf(itemCreator)
+      let itemCreatorBalance = await ucc.balanceOf(itemCreator)
       expect(itemCreatorBalance).to.be.eq.BN(0)
 
-      let itemBeneficiaryBalance = await mana.balanceOf(itemBeneficiary)
+      let itemBeneficiaryBalance = await ucc.balanceOf(itemBeneficiary)
       expect(itemBeneficiaryBalance).to.be.eq.BN(0)
 
       // Set 10% of bid price
@@ -2196,28 +2196,28 @@ contract('Bid', function([
         }
       )
 
-      bidderBalance = await mana.balanceOf(bidder)
+      bidderBalance = await ucc.balanceOf(bidder)
 
       scientificToDecimal(bidderBalance.toString()).should.be.equal(
         scientificToDecimal(initialBalance.toString() - bidPrice)
       )
 
-      holderBalance = await mana.balanceOf(holder)
+      holderBalance = await ucc.balanceOf(holder)
       expect(holderBalance.toString()).to.be.equal(
         (bidPrice - bidPrice * 0.1).toString()
       )
 
-      feesCollectorBalance = await mana.balanceOf(feesCollector)
+      feesCollectorBalance = await ucc.balanceOf(feesCollector)
       expect(feesCollectorBalance.toString()).to.be.equal(
         (bidPrice * 0).toString()
       )
 
-      itemCreatorBalance = await mana.balanceOf(itemCreator)
+      itemCreatorBalance = await ucc.balanceOf(itemCreator)
       expect(itemCreatorBalance.toString()).to.be.eq.BN(
         (bidPrice * 0.0).toString()
       )
 
-      itemBeneficiaryBalance = await mana.balanceOf(itemBeneficiary)
+      itemBeneficiaryBalance = await ucc.balanceOf(itemBeneficiary)
       expect(itemBeneficiaryBalance.toString()).to.be.eq.BN(
         (bidPrice * 0.1).toString()
       )
@@ -2227,19 +2227,19 @@ contract('Bid', function([
       await erc721TestCollection.setCreator(itemCreator)
       await erc721TestCollection.setBeneficiary(itemBeneficiary)
 
-      let bidderBalance = await mana.balanceOf(bidder)
+      let bidderBalance = await ucc.balanceOf(bidder)
       expect(bidderBalance).to.be.eq.BN(initialBalance)
 
-      let holderBalance = await mana.balanceOf(holder)
+      let holderBalance = await ucc.balanceOf(holder)
       expect(holderBalance).to.be.eq.BN(0)
 
-      let feesCollectorBalance = await mana.balanceOf(feesCollector)
+      let feesCollectorBalance = await ucc.balanceOf(feesCollector)
       expect(feesCollectorBalance).to.be.eq.BN(0)
 
-      let itemCreatorBalance = await mana.balanceOf(itemCreator)
+      let itemCreatorBalance = await ucc.balanceOf(itemCreator)
       expect(itemCreatorBalance).to.be.eq.BN(0)
 
-      let itemBeneficiaryBalance = await mana.balanceOf(itemBeneficiary)
+      let itemBeneficiaryBalance = await ucc.balanceOf(itemBeneficiary)
       expect(itemBeneficiaryBalance).to.be.eq.BN(0)
 
       // Set 10% of bid price
@@ -2287,28 +2287,28 @@ contract('Bid', function([
         }
       )
 
-      bidderBalance = await mana.balanceOf(bidder)
+      bidderBalance = await ucc.balanceOf(bidder)
 
       scientificToDecimal(bidderBalance.toString()).should.be.equal(
         scientificToDecimal(initialBalance.toString() - bidPrice)
       )
 
-      holderBalance = await mana.balanceOf(holder)
+      holderBalance = await ucc.balanceOf(holder)
       expect(holderBalance.toString()).to.be.equal(
         (bidPrice - bidPrice * 0.1).toString()
       )
 
-      feesCollectorBalance = await mana.balanceOf(feesCollector)
+      feesCollectorBalance = await ucc.balanceOf(feesCollector)
       expect(feesCollectorBalance.toString()).to.be.equal(
         (bidPrice * 0).toString()
       )
 
-      itemCreatorBalance = await mana.balanceOf(itemCreator)
+      itemCreatorBalance = await ucc.balanceOf(itemCreator)
       expect(itemCreatorBalance.toString()).to.be.eq.BN(
         (bidPrice * 0.0).toString()
       )
 
-      itemBeneficiaryBalance = await mana.balanceOf(itemBeneficiary)
+      itemBeneficiaryBalance = await ucc.balanceOf(itemBeneficiary)
       expect(itemBeneficiaryBalance.toString()).to.be.eq.BN(
         (bidPrice * 0.1).toString()
       )
@@ -2318,19 +2318,19 @@ contract('Bid', function([
       await erc721TestCollection.setCreator(itemCreator)
       await erc721TestCollection.setBeneficiary(zeroAddress)
 
-      let bidderBalance = await mana.balanceOf(bidder)
+      let bidderBalance = await ucc.balanceOf(bidder)
       expect(bidderBalance).to.be.eq.BN(initialBalance)
 
-      let holderBalance = await mana.balanceOf(holder)
+      let holderBalance = await ucc.balanceOf(holder)
       expect(holderBalance).to.be.eq.BN(0)
 
-      let feesCollectorBalance = await mana.balanceOf(feesCollector)
+      let feesCollectorBalance = await ucc.balanceOf(feesCollector)
       expect(feesCollectorBalance).to.be.eq.BN(0)
 
-      let itemCreatorBalance = await mana.balanceOf(itemCreator)
+      let itemCreatorBalance = await ucc.balanceOf(itemCreator)
       expect(itemCreatorBalance).to.be.eq.BN(0)
 
-      let itemBeneficiaryBalance = await mana.balanceOf(itemBeneficiary)
+      let itemBeneficiaryBalance = await ucc.balanceOf(itemBeneficiary)
       expect(itemBeneficiaryBalance).to.be.eq.BN(0)
 
       // Set 20% of bid price
@@ -2379,26 +2379,26 @@ contract('Bid', function([
         }
       )
 
-      bidderBalance = await mana.balanceOf(bidder)
+      bidderBalance = await ucc.balanceOf(bidder)
 
       scientificToDecimal(bidderBalance.toString()).should.be.equal(
         scientificToDecimal(initialBalance.toString() - bidPrice)
       )
 
-      holderBalance = await mana.balanceOf(holder)
+      holderBalance = await ucc.balanceOf(holder)
       expect(holderBalance.toString()).to.be.equal(
         (bidPrice - bidPrice * 0.2).toString()
       )
 
-      feesCollectorBalance = await mana.balanceOf(feesCollector)
+      feesCollectorBalance = await ucc.balanceOf(feesCollector)
       expect(feesCollectorBalance.toString()).to.be.equal(
         (bidPrice * 0.1).toString()
       )
 
-      itemCreatorBalance = await mana.balanceOf(itemCreator)
+      itemCreatorBalance = await ucc.balanceOf(itemCreator)
       expect(itemCreatorBalance).to.be.eq.BN((bidPrice * 0.1).toString())
 
-      itemBeneficiaryBalance = await mana.balanceOf(itemBeneficiary)
+      itemBeneficiaryBalance = await ucc.balanceOf(itemBeneficiary)
       expect(itemBeneficiaryBalance.toString()).to.be.eq.BN((0).toString())
     })
 
@@ -2406,19 +2406,19 @@ contract('Bid', function([
       await erc721TestCollection.setCreator(itemCreator)
       await erc721TestCollection.setBeneficiary(itemBeneficiary)
 
-      let bidderBalance = await mana.balanceOf(bidder)
+      let bidderBalance = await ucc.balanceOf(bidder)
       expect(bidderBalance).to.be.eq.BN(initialBalance)
 
-      let holderBalance = await mana.balanceOf(holder)
+      let holderBalance = await ucc.balanceOf(holder)
       expect(holderBalance).to.be.eq.BN(0)
 
-      let feesCollectorBalance = await mana.balanceOf(feesCollector)
+      let feesCollectorBalance = await ucc.balanceOf(feesCollector)
       expect(feesCollectorBalance).to.be.eq.BN(0)
 
-      let itemCreatorBalance = await mana.balanceOf(itemCreator)
+      let itemCreatorBalance = await ucc.balanceOf(itemCreator)
       expect(itemCreatorBalance).to.be.eq.BN(0)
 
-      let itemBeneficiaryBalance = await mana.balanceOf(itemBeneficiary)
+      let itemBeneficiaryBalance = await ucc.balanceOf(itemBeneficiary)
       expect(itemBeneficiaryBalance).to.be.eq.BN(0)
 
       // Set 20% of bid price
@@ -2467,26 +2467,26 @@ contract('Bid', function([
         }
       )
 
-      bidderBalance = await mana.balanceOf(bidder)
+      bidderBalance = await ucc.balanceOf(bidder)
 
       scientificToDecimal(bidderBalance.toString()).should.be.equal(
         scientificToDecimal(initialBalance.toString() - bidPrice)
       )
 
-      holderBalance = await mana.balanceOf(holder)
+      holderBalance = await ucc.balanceOf(holder)
       expect(holderBalance.toString()).to.be.equal(
         (bidPrice - bidPrice * 0.2).toString()
       )
 
-      feesCollectorBalance = await mana.balanceOf(feesCollector)
+      feesCollectorBalance = await ucc.balanceOf(feesCollector)
       expect(feesCollectorBalance.toString()).to.be.equal(
         (bidPrice * 0.1).toString()
       )
 
-      itemCreatorBalance = await mana.balanceOf(itemCreator)
+      itemCreatorBalance = await ucc.balanceOf(itemCreator)
       expect(itemCreatorBalance).to.be.eq.BN(0)
 
-      itemBeneficiaryBalance = await mana.balanceOf(itemBeneficiary)
+      itemBeneficiaryBalance = await ucc.balanceOf(itemBeneficiary)
       expect(itemBeneficiaryBalance.toString()).to.be.eq.BN(
         (bidPrice * 0.1).toString()
       )

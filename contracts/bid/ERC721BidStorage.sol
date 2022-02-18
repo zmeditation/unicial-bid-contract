@@ -56,8 +56,8 @@ contract ERC721BidStorage {
         bytes fingerprint;
     }
 
-    // MANA token
-    ERC20Interface public manaToken;
+    // UCC token
+    ERC20Interface public uccToken;
 
     // Bid by token address => token id => bid index => bid
     mapping(address => mapping(uint256 => mapping(uint256 => Bid))) internal bidsByToken;
